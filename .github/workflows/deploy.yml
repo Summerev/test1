@@ -17,11 +17,16 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        echo "Host ec2-instance" >> ~/.ssh/config
+        echo "  HostName ${{ secrets.EC2_HOST }}" >> ~/.ssh/config
+        echo "  User ubuntu" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config
+        echo "  StrictHostKeyChecking no" >> ~/.ssh/config
 
     - name: Deploy to EC2
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/myapp || git clone https://github.com/사용자아이디/레포이름.git myapp && cd myapp
+        ssh ec2-instance << 'EOF'
+          cd ~/myapp || git clone https://github.com/Summerev/test1.git myapp && cd myapp
           git pull origin main
           docker stop mytestapp || true
           docker rm mytestapp || true
